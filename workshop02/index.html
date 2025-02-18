@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High-Low Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center;margin: 0;
+            overflow: hidden; }
+        .dice-result { font-size: 1.5em; margin: 10px; }
+        .dice-container { display: flex; justify-content: center; gap: 10px; margin: 20px; }
+        .dice { 
+            font-size: 2em; 
+            width: 50px; 
+            height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: 2px solid black; 
+            border-radius: 5px; 
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(30px); 
+        }
+        .roll-the-dice-btn {
+            cursor: pointer;
+        }
+        /* .roll-the-dice-btn:hover {
+            transform:scale(1.5);
+        }
+        .springy {
+            transition: transform .83s
+                linear(
+                0,
+                0.009,
+                0.035 2.1%,
+                0.141,
+                0.281 6.7%,
+                0.723 12.9%,
+                0.938 16.7%,
+                1.017,
+                1.077,
+                1.121,
+                1.149 24.3%,
+                1.159,
+                1.163,
+                1.161,
+                1.154 29.9%,
+                1.129 32.8%,
+                1.051 39.6%,
+                1.017 43.1%,
+                0.991,
+                0.977 51%,
+                0.974 53.8%,
+                0.975 57.1%,
+                0.997 69.8%,
+                1.003 76.9%,
+                1.004 83.8%,
+                1
+            );
+        } */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+        .sky {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #87CEEB, #FFD700);
+            transition: background 20s ease-in-out;
+        }
+        .twilight {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: linear-gradient(to bottom, #FF8C00, #800080);
+            opacity: 0;
+            transition: opacity 20s ease-in-out;
+        }
+        .night-sky {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: radial-gradient(circle at center, #0d1a26 10%, #000 90%);
+            opacity: 0;
+            transition: opacity 20s ease-in-out;
+        }
+        .milky-way {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%) rotate(20deg);
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0) 70%);
+            opacity: 0.5;
+        }
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: twinkle 2s infinite alternate;
+        }
+        .container{
+            display: flex;
+            height:100vh;
+        }
+        .game-container{
+            margin:auto;
+            color: #fff;
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 15px;
+            padding: 32px;
+            backdrop-filter: blur(10px);
+            padding:2em;
+            box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+
+        }
+        .glass-button{
+            box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            padding: 24px 32px;
+            border: 0;
+            text-decoration: none;
+            border-radius: 15px;
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(30px);
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .glass-button:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+        
+        .glass-checkbox{
+            opacity: 0;
+            visibility: hidden;
+            display: none;
+            z-index: -1;
+        }
+
+        .label-glass-checkbox{
+            position: relative;
+            display: flex;
+            cursor: pointer;
+            width: 50px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(8px);
+            border-radius: 100px;
+            transition: background-color .4s;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glass-checkbox:checked + .label-glass-checkbox{
+            background-color: #f86fc1;
+            border-color: transparent;
+        }
+
+        .label-glass-checkbox::before{
+            content: "";
+            position: absolute;
+            display: block;
+            width: 40px;
+            height: 40px;
+            top: 50%;
+            transform: translate(-20px, -50%);
+            background-color: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            transition: transform 0.4s;
+            backdrop-filter: blur(12px);
+        }
+
+        .glass-checkbox:checked + .label-glass-checkbox::before{
+            transform: translate(25px, -50%);
+        }
+
+        .glass-input {
+            box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            background-color: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(30px); 
+            padding: 1em;
+            color: #fff;
+            font-size: 1.25em;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="sky">
+            <div class="twilight"></div>
+            <div class="night-sky">
+                <div class="milky-way"></div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="game-container">
+            <h1>High-Low Game</h1>
+    
+            <label for="howDareYou">Your Bet Amount:</label>
+            <input type="number" id="howDareYou" min="1" value="10" class="glass-input">
+            
+            <h3>Place Your Bet:</h3>
+            <div style="display: flex; justify-content: space-evenly;">
+                <div style="display: flex;">
+                    <input type="radio" name="whereIPutMyFaith" value="low" class="glass-checkbox" id="whereIPutMyFaith_low">
+                    <label class="label-glass-checkbox" for="whereIPutMyFaith_low">low</label>
+                </div>
+                <div style="display: flex;">
+                    <input type="radio" name="whereIPutMyFaith" value="mid" class="glass-checkbox" id="whereIPutMyFaith_mid"> 
+                    <label class="label-glass-checkbox"  for="whereIPutMyFaith_mid">mid</label>
+                </div>
+                <div style="display: flex;">
+                    <input type="radio" name="whereIPutMyFaith" value="high" class="glass-checkbox" id="whereIPutMyFaith_high"> 
+                    <label class="label-glass-checkbox"  for="whereIPutMyFaith_high">high</label>
+                </div>
+            </div>
+            
+            
+            <br><br>
+            <button onclick="rollDice()" class="glass-button roll-the-dice-btn">Roll the Dice</button>
+            
+            <div class="dice-container">
+                <div class="dice" id="dice1">🎲</div>
+                <div class="dice" id="dice2">🎲</div>
+                <div class="dice" id="dice3">🎲</div>
+            </div>
+            
+            <h2 class="dice-result" id="diceResult"></h2>
+            <h2 id="gameOutcome"></h2>
+        </div> 
+    </div>
+       
+    <script>
+        function rollDice() {
+            let diceElements = [document.getElementById("dice1"), document.getElementById("dice2"), document.getElementById("dice3")];
+            let animationInterval = setInterval(() => {
+                diceElements.forEach(dice => {
+                    dice.innerText = Math.floor(Math.random() * 6) + 1;
+                });
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(animationInterval);
+                let dice1 = Math.floor(Math.random() * 6) + 1;
+                let dice2 = Math.floor(Math.random() * 6) + 1;
+                let dice3 = Math.floor(Math.random() * 6) + 1;
+                let sum = dice1 + dice2 + dice3;
+                
+                diceElements[0].innerText = dice1;
+                diceElements[1].innerText = dice2;
+                diceElements[2].innerText = dice3;
+                
+                let resultCategory = sum <= 10 ? "low" : sum === 11 ? "mid" : "high";
+                let userBet = document.querySelector('input[name="whereIPutMyFaith"]:checked');
+                let betAmount = parseInt(document.getElementById("howDareYou").value, 10);
+                let winnings = 0;
+                
+                document.getElementById("diceResult").innerText = `Rolled: ${dice1}, ${dice2}, ${dice3} (Sum: ${sum})`;
+                
+                if (userBet) {
+                    let betValue = userBet.value;
+                    if (betValue === resultCategory) {
+                        winnings = resultCategory === "mid" ? betAmount * 5 : betAmount * 2;
+                        document.getElementById("gameOutcome").innerText = `🎉 You Win! 🎉 Your reward: $${winnings}`;
+                        document.getElementById("gameOutcome").style.color = "green";
+                    } else {
+                        document.getElementById("gameOutcome").innerText = "😢 You Lose! 😢";
+                        document.getElementById("gameOutcome").style.color = "red";
+                    }
+                } else {
+                    document.getElementById("gameOutcome").innerText = "⚠️ Please place your bet!";
+                    document.getElementById("gameOutcome").style.color = "orange";
+                }
+            }, 2000); // 2-second animation
+        }
+
+        const sky = document.querySelector('.sky');
+        const twilight = document.querySelector('.twilight');
+        const nightSky = document.querySelector('.night-sky');
+        let cycleCount = 0;
+        const maxCycles = 3;
+        
+        function toggleDayNight() {
+            if (cycleCount >= maxCycles) return;
+            
+            if (nightSky.style.opacity === '1') {
+                nightSky.style.opacity = '0';
+                twilight.style.opacity = '1';
+                setTimeout(() => {
+                    twilight.style.opacity = '0';
+                    sky.style.background = 'linear-gradient(to bottom, #87CEEB, #FFD700)';
+                }, 20000);
+            } else {
+                twilight.style.opacity = '1';
+                setTimeout(() => {
+                    twilight.style.opacity = '0';
+                    nightSky.style.opacity = '1';
+                    sky.style.background = 'linear-gradient(to bottom, #0d1a26, #000)';
+                }, 20000);
+                cycleCount++;
+            }
+        }
+        
+        const cycleInterval = setInterval(() => {
+            toggleDayNight();
+            if (cycleCount >= maxCycles) {
+                clearInterval(cycleInterval);
+            }
+        }, 60000);
+        
+        const starContainer = document.querySelector('.night-sky');
+        for (let i = 0; i < 200; i++) {
+            let star = document.createElement('div');
+            star.classList.add('star');
+            let x = Math.random() * window.innerWidth;
+            let y = Math.random() * window.innerHeight;
+            let size = Math.random() * 3;
+            let duration = Math.random() * 3 + 2;
+            
+            star.style.left = `${x}px`;
+            star.style.top = `${y}px`;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.animationDuration = `${duration}s`;
+            
+            starContainer.appendChild(star);
+        }
+    </script>
+</body>
+</html>
