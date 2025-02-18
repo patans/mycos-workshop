@@ -1,4 +1,6 @@
-# mycos-workshop
+# MYCOS-WORKSHOP
+Traning programs for Mycostechie. 
+
 ## Workshop 01 - Basic web HTML CSS. 
 Everying was created by my hand no AI at all.
 
